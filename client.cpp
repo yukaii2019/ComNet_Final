@@ -8,29 +8,61 @@
 
 using namespace std;
 
-void Server_Request_Procedure(int sockfd);
+void Server_Request_Procedure(void);
+void Send(string str);
+void Recieve(void);
+
+int sockfd;
+char recieve_buffer[100];
 
 int main(){
     struct sockaddr_in server_addr;
-    int sockfd,status;
+    int status;
     server_addr.sin_family = PF_INET;
     server_addr.sin_port = htons(1234);
     server_addr.sin_addr.s_addr=inet_addr("127.0.0.1");
     
     sockfd = socket(PF_INET,SOCK_STREAM,0);
-    connect(sockfd,(struct sockaddr*)&server_addr,sizeof(struct sockaddr_in));
-    
-    Server_Request_Procedure(sockfd);
+    int c = connect(sockfd,(struct sockaddr*)&server_addr,sizeof(struct sockaddr_in));
+    if (c == -1){
+        cout << "connect Error !!" << endl;
+        return 1;
+    }
+    else {
+        cout << "Successfully connect to server" << endl;
+    }
+    Server_Request_Procedure();
     close(sockfd);
     return 0;
 }
 
-void Server_Request_Procedure(int sockfd){
-    char buffer[4];
-    buffer[0] = 'a';
-    buffer[1] = 'b';
-    buffer[2] = 'c';
-    buffer[3] = '\0';
-    write(sockfd,buffer,sizeof(buffer));
-    cout << "aaaa" << endl;
+void Server_Request_Procedure(){
+    string input;
+
+    Recieve();
+    cout << recieve_buffer << " ";
+
+    while(1){
+        cin >> input;
+        Send(input);
+        Recieve();
+        if(strcmp(recieve_buffer,"correct")==0){
+            break;
+        }
+        else{
+            cout << recieve_buffer << " ";
+        }
+    }
+    cout << "aaaaaaaaaaaa" << endl;
+
+}
+void Send(string str){
+    char send_buffer[100];
+    strcpy(send_buffer,str.c_str());
+    write(sockfd,send_buffer,sizeof(char)*strlen(send_buffer));
+}
+
+void Recieve(){
+    memset(recieve_buffer,0,sizeof(recieve_buffer));
+    read(sockfd,recieve_buffer,sizeof(recieve_buffer));
 }
