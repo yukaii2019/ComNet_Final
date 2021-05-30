@@ -38,10 +38,9 @@ int main(){
 
 void Server_Request_Procedure(){
     string input;
-
+while(1){
     Recieve();
     cout << recieve_buffer << " ";
-
     while(1){
         cin >> input;
         Send(input);
@@ -53,16 +52,42 @@ void Server_Request_Procedure(){
             cout << recieve_buffer << " ";
         }
     }
-    cout << "aaaaaaaaaaaa" << endl;
 
+    if(input == "1"){
+        Recieve();
+        cout << recieve_buffer << " ";
+        cin >> input;
+        Send(input);
+        Recieve();
+        if(strcmp(recieve_buffer,"error")==0){
+            cout << "Can't not find the address" << endl;;
+        }
+        else{
+            cout << "address get from domain name : "<<recieve_buffer << endl << endl;
+        }
+    }
+    else if(input =="2"){
+        Recieve();
+        cout << recieve_buffer << " ";
+        cin >> input;
+        Send(input);
+        Recieve();
+        cout << "Email get from server : "<< recieve_buffer << endl << endl;
+    }
+    else{
+        break;
+    }
+}
 }
 void Send(string str){
     char send_buffer[100];
     strcpy(send_buffer,str.c_str());
     write(sockfd,send_buffer,sizeof(char)*strlen(send_buffer));
+    usleep(1000);
 }
 
 void Recieve(){
     memset(recieve_buffer,0,sizeof(recieve_buffer));
     read(sockfd,recieve_buffer,sizeof(recieve_buffer));
+    usleep(1000);
 }

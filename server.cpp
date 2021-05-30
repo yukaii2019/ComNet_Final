@@ -11,32 +11,25 @@
 #include <netdb.h>
 using namespace std;
 
-int handle_client(void);
-int URL_to_Address(char* URL, char* ip);
-void Send(string str);
-void Recieve(void);
-
-int streamfd;
-char recieve_buffer[100];
-
 typedef struct ID_Email_Pair {
     string ID;
     string Email;
 }ID_Email_Pair;
 
+int handle_client(void);
+int URL_to_Address(char* URL, char* ip);
+void Send(string str);
+void Recieve(void);
+vector<ID_Email_Pair> ID_Email;
+
+int streamfd;
+char recieve_buffer[100];
 
 int main(){
     struct sockaddr_in myaddr;
     struct sockaddr_in client_addr;
     int sockfd, port, status;
-    //int streamfd;
-    int addr_size;
-     
-    vector<ID_Email_Pair> ID_Email;
-    
-    //char URL[] = "www.google.com";
-    //URL_to_Address(URL,IP_buffer);
-    //cout << IP_buffer << endl;
+    int addr_size; 
 
 /*  read query.txt-----------------------------------------*/
     ifstream infile;
@@ -54,16 +47,8 @@ int main(){
         infile >> tmp.Email;
         ID_Email.push_back(tmp);
     }
-    /*
-    for(int i = 0 ;i< ID_Email.size();i++){
-        cout << ID_Email[i].ID << endl;
-        cout << ID_Email[i].Email << endl;
-        
-    }
-     */
     infile.close();
 /*end of read query.txt---------------------------------------*/
-
 
     bzero(&myaddr,sizeof(myaddr));
     myaddr.sin_family = PF_INET;
@@ -87,32 +72,54 @@ int main(){
 }
 
 int handle_client(){
-    char str_buffer2[] = "Input URL address : ";
-    char str_buffer3[] = "Input student ID : ";
-    
+
+    char IP[100];
+while(1){
     /*read requirement---------------------------------------------*/
+    Send("What's your requirement? 1.DNS 2.QUERY 3.QUIT");
     while(1){ 
-        Send("What's your requirement? 1.DNS 2.QUERY 3.QUIT");
         Recieve();
         if(strcmp(recieve_buffer,"1")==0||strcmp(recieve_buffer,"2")==0|| strcmp(recieve_buffer,"3")==0){
             Send("correct");
             break;
         }
         else{
-            Send("The requirement isn't exist, please enter 1, 2 or 3\n");
+            Send("The requirement isn't exist, please enter 1, 2 or 3\n\nWhat's your requirement? 1.DNS 2.QUERY 3.QUIT");
         } 
     }
     /*-------------------------------------------------------------*/
-    cout << "aaaaaaaaaaaaaaaaaaaaa"<<endl;
-    if(strcmp(recieve_buffer,"1")==0){
 
+    if(strcmp(recieve_buffer,"1")==0){
+        Send("Input URL address :");
+        Recieve();
+        int u = URL_to_Address(recieve_buffer,IP);
+        if(u==1){
+            Send("error");
+        }
+        else{
+            Send(string(IP));
+        }
     }
     else if (strcmp(recieve_buffer,"2")==0){
+        Send("Input student ID :");
+        Recieve();
 
+        bool find = false;
+        for(int i=0;i<ID_Email.size();i++){
+            if(ID_Email[i].ID==string(recieve_buffer)){
+                find = true;
+                Send(ID_Email[i].Email);
+                break;
+            }
+        }
+        if(find == false){
+            Send("No such student ID");
+        }
     }
     else {
-
+        break;
     }
+}
     return 0;
 }
 
@@ -138,9 +145,11 @@ void Send(string str){
     char send_buffer[100];
     strcpy(send_buffer,str.c_str());
     write(streamfd,send_buffer,sizeof(char)*strlen(send_buffer));
+    usleep(1000);
 }
 
 void Recieve(){
     memset(recieve_buffer,0,sizeof(recieve_buffer));
     read(streamfd,recieve_buffer,sizeof(recieve_buffer));
+    usleep(1000);
 }
