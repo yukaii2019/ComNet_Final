@@ -38,46 +38,46 @@ int main(){
 
 void Server_Request_Procedure(){
     string input;
-while(1){
-    Recieve();
-    cout << recieve_buffer << " ";
     while(1){
-        cin >> input;
-        Send(input);
         Recieve();
-        if(strcmp(recieve_buffer,"correct")==0){
+        cout << recieve_buffer << " ";
+        while(1){
+            cin >> input;
+            Send(input);
+            Recieve();
+            if(strcmp(recieve_buffer,"correct")==0){
+                break;
+            }
+            else{
+                cout << recieve_buffer << " ";
+            }
+        }
+
+        if(input == "1"){
+            Recieve();
+            cout << recieve_buffer << " ";
+            cin >> input;
+            Send(input);
+            Recieve();
+            if(strcmp(recieve_buffer,"error")==0){
+                cout << "Can't not find the address" << endl<<endl;
+            }
+            else{
+                cout << "address get from domain name : "<<recieve_buffer << endl << endl;
+            }
+        }
+        else if(input =="2"){
+            Recieve();
+            cout << recieve_buffer << " ";
+            cin >> input;
+            Send(input);
+            Recieve();
+            cout << "Email get from server : "<< recieve_buffer << endl << endl;
+        }
+        else{
             break;
         }
-        else{
-            cout << recieve_buffer << " ";
-        }
     }
-
-    if(input == "1"){
-        Recieve();
-        cout << recieve_buffer << " ";
-        cin >> input;
-        Send(input);
-        Recieve();
-        if(strcmp(recieve_buffer,"error")==0){
-            cout << "Can't not find the address" << endl;;
-        }
-        else{
-            cout << "address get from domain name : "<<recieve_buffer << endl << endl;
-        }
-    }
-    else if(input =="2"){
-        Recieve();
-        cout << recieve_buffer << " ";
-        cin >> input;
-        Send(input);
-        Recieve();
-        cout << "Email get from server : "<< recieve_buffer << endl << endl;
-    }
-    else{
-        break;
-    }
-}
 }
 void Send(string str){
     char send_buffer[100];

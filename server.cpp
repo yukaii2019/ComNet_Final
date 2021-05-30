@@ -48,7 +48,7 @@ int main(){
         ID_Email.push_back(tmp);
     }
     infile.close();
-/*end of read query.txt---------------------------------------*/
+/*end of reading query.txt---------------------------------------*/
 
     bzero(&myaddr,sizeof(myaddr));
     myaddr.sin_family = PF_INET;
@@ -59,13 +59,19 @@ int main(){
     listen(sockfd,10);
     addr_size = sizeof(client_addr);
     while(1){
-
+        cout << "Waiting for connection..." << endl;
         streamfd = accept(sockfd,(struct sockaddr*) &client_addr,(socklen_t*)&addr_size);
         if (streamfd == -1){
             cout << "Accept Error !!" << endl;
             return 1;
-        }  
+        }
+        else{
+            cout << "New connection from " << ntohl(client_addr.sin_addr.s_addr)/16777216 << "." << (ntohl(client_addr.sin_addr.s_addr)%16777216)/65536 << '.' << (ntohl(client_addr.sin_addr.s_addr)%65536)/256  << "." << (ntohl(client_addr.sin_addr.s_addr)%256)<< endl;
+        }
         handle_client();
+
+        cout << "Disconnect from " << ntohl(client_addr.sin_addr.s_addr)/16777216 << "." << (ntohl(client_addr.sin_addr.s_addr)%16777216)/65536 << '.' << (ntohl(client_addr.sin_addr.s_addr)%65536)/256  << "." << (ntohl(client_addr.sin_addr.s_addr)%256)<< endl;
+
         close(streamfd);
     }
     return 0;
@@ -74,52 +80,60 @@ int main(){
 int handle_client(){
 
     char IP[100];
-while(1){
-    /*read requirement---------------------------------------------*/
-    Send("What's your requirement? 1.DNS 2.QUERY 3.QUIT");
-    while(1){ 
-        Recieve();
-        if(strcmp(recieve_buffer,"1")==0||strcmp(recieve_buffer,"2")==0|| strcmp(recieve_buffer,"3")==0){
-            Send("correct");
-            break;
-        }
-        else{
-            Send("The requirement isn't exist, please enter 1, 2 or 3\n\nWhat's your requirement? 1.DNS 2.QUERY 3.QUIT");
-        } 
-    }
-    /*-------------------------------------------------------------*/
-
-    if(strcmp(recieve_buffer,"1")==0){
-        Send("Input URL address :");
-        Recieve();
-        int u = URL_to_Address(recieve_buffer,IP);
-        if(u==1){
-            Send("error");
-        }
-        else{
-            Send(string(IP));
-        }
-    }
-    else if (strcmp(recieve_buffer,"2")==0){
-        Send("Input student ID :");
-        Recieve();
-
-        bool find = false;
-        for(int i=0;i<ID_Email.size();i++){
-            if(ID_Email[i].ID==string(recieve_buffer)){
-                find = true;
-                Send(ID_Email[i].Email);
+    while(1){
+        /*read requirement---------------------------------------------*/
+        Send("What's your requirement? 1.DNS 2.QUERY 3.QUIT :");
+        while(1){ 
+            Recieve();
+            if(strcmp(recieve_buffer,"1")==0||strcmp(recieve_buffer,"2")==0|| strcmp(recieve_buffer,"3")==0){
+                cout << "Requirement from client is " << recieve_buffer << endl;
+                Send("correct");
                 break;
             }
+            else{
+                cout << "The requirment from client isn't exit" << endl;
+                Send("The requirement isn't exist, please enter 1, 2 or 3\n\nWhat's your requirement? 1.DNS 2.QUERY 3.QUIT :");
+            } 
         }
-        if(find == false){
-            Send("No such student ID");
+        /*-------------------------------------------------------------*/
+
+        if(strcmp(recieve_buffer,"1")==0){
+            Send("Input URL address :");
+            Recieve();
+            cout << "The recieved URL is " << recieve_buffer << endl;
+            cout << "Finding..." << endl;
+            int u = URL_to_Address(recieve_buffer,IP);
+            if(u==1){
+                cout << "Can't find the IP address" << endl;
+                Send("error");
+            }
+            else{
+                cout << "The IP address sent back is " << string(IP) << endl;
+                Send(string(IP));
+            }
+        }
+        else if (strcmp(recieve_buffer,"2")==0){
+            Send("Input student ID :");
+            Recieve();
+            cout << "The recieved student ID is "<< recieve_buffer << endl;
+            bool find = false;
+            for(int i=0;i<ID_Email.size();i++){
+                if(ID_Email[i].ID==string(recieve_buffer)){
+                    find = true;
+                    cout << "The Email send back is " << ID_Email[i].Email << endl;
+                    Send(ID_Email[i].Email);
+                    break;
+                }
+            }
+            if(find == false){
+                cout << "Can't find the student" << endl;
+                Send("No such student ID");
+            }
+        }
+        else {
+            break;
         }
     }
-    else {
-        break;
-    }
-}
     return 0;
 }
 
