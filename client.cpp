@@ -60,7 +60,7 @@ void Server_Request_Procedure(){
             Send(input);
             Recieve();
             if(strcmp(recieve_buffer,"error")==0){
-                cout << "Can't not find the address" << endl<<endl;
+                cout << "Can't find the address" << endl<<endl;
             }
             else{
                 cout << "address get from domain name : "<<recieve_buffer << endl << endl;
